@@ -1,0 +1,6 @@
+# EDITORS
+*~
+*.swp
+
+# NODE
+node_modules
