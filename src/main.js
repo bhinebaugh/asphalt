@@ -1,8 +1,10 @@
 // Core libraries
 const fs = require('fs');
+const path = require('path');
 const proc = require('process');
 const Readable = require('stream').Readable;
 const Transform = require('stream').Transform;
+const Writable = require('stream').Writable;
 const readline = require('readline');
 
 // Third party libraries
@@ -26,22 +28,44 @@ function getAsphaltConfig() {
   });
 }
 
-// Convert schema into a stream of [name, type] pairs
-class SchemaDefinitionStream extends Readable {
-  constructor(schema, options = {}) {
-    options.objectMode = true;
-    const stream = super(options);
-    stream.schemaPairs = Object.keys(schema).map(name => [name, schema[name]]);
-    return stream;
-  }
-
-  _read() {
-    this.push(this.schemaPairs.shift() || null);
-  }
+function getSavedElements(filepath, schema) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filepath, (err, data) => {
+      if (err) {
+        if ('ENOENT' === err.code) {
+          resolve([]);
+        } else {
+          reject(err);
+        }
+      } else {
+        resolve(JSON.parse(data));
+      }
+    });
+  });
 }
 
+function populateElementStore(config) {
+    const store = {};
+
+    const promises = Object.keys(config.schema).map(name => {
+      const filepath = path.resolve(config.basePath, `${name}.json`);
+      return getSavedElements(filepath, config.schema[name])
+        .then(elements => store[name] = elements);
+    });
+
+    return Promise.all(promises).then(() => {
+      console.log(store);
+      return store;
+    }, (err) => {
+      console.log(err);
+    });
+}
+
+// Convert schema into a stream of [name, type] pairs
 function createSchemaDefinitionStream(schema) {
-  const schemaPairs = Object.keys(schema).map(name => [name, schema[name]]);
+  const schemaPairs = Object.keys(schema).map(name => {
+    return {name, type: schema[name]}
+  });
   return new Readable({
     objectMode: true,
     read: function ()  {
@@ -51,40 +75,20 @@ function createSchemaDefinitionStream(schema) {
 }
 
 // Consume schema stream and prompt user for input
-class SchemaPromptStream extends Transform {
-  constructor(options = {}) {
-    options.objectMode = true;
-    return super(options);
-  }
-
-  _transform(chunk, enc, next) {
-    const [name, type] = chunk;
-    const rl = readline.createInterface({
-      input: proc.stdin,
-      output: proc.stdout
-    });
-
-    rl.question(`${name} [${type}]: `, (value) => {
-      rl.close();
-      this.push(value);
-      next();
-    });
-  }
-}
-
 function createSchemaPromptStream () {
   return new Transform({
     objectMode: true,
     transform: function (chunk, enc, next) {
-      const [name, type] = chunk;
+      const {name, type} = chunk;
       const rl = readline.createInterface({
         input: proc.stdin,
         output: proc.stdout
       });
 
-      rl.question(`${name} [${type}]: `, (value) => {
+      rl.question(`${name} (${type}): `, (value) => {
         rl.close();
-        this.push(value);
+        const result = Object.assign({}, chunk, {value});
+        this.push(result);
         next();
       });
     }
@@ -92,18 +96,54 @@ function createSchemaPromptStream () {
 }
 
 // Consume user input and write created object stream
+function createElementConsumer(){
+  const result = {};
+  return new Transform({
+    objectMode: true,
+    transform: function (chunk, enc, next) {
+      const {name, type, value} = chunk;
+      result[name] = value;
+      this.push(result);
+      next();
+    }
+  });
+}
 
 // Handle the resulting created object
+function saveElement(config, name, branch) {
+  const filepath = path.resolve(config.basePath, `${name}.json`);
+  let latest;
 
+  return new Writable({
+    objectMode: true,
+    write: function (chunk, enc, next) {
+      latest = chunk;
+      next();
+    }
+  }).on('finish', () => {
+    const modifiedBranch = branch.concat(latest);
+    fs.writeFile(filepath, JSON.stringify(modifiedBranch), (err, data) => {
+      console.log('done?', err);
+    });
+  });
+}
 
 // Imperative dumping ground
 proc.stdout.write('Starting Asphalt...\n');
 
 getAsphaltConfig().then(
   config => {
-    createSchemaDefinitionStream(config.schema.feature)
-      .pipe(createSchemaPromptStream())
-      .pipe(proc.stdout);
+    fs.mkdir(config.basePath, (err) => {
+      if (err) {
+        proc.stderr.write(String(err));
+      }
+      populateElementStore(config).then(store => {
+        createSchemaDefinitionStream(config.schema.feature)
+          .pipe(createSchemaPromptStream())
+          .pipe(createElementConsumer())
+          .pipe(saveElement(config, 'feature', store.feature));
+      });
+    });
   },
   err => {
     proc.stderr.write(JSON.stringify(err));

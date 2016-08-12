@@ -4,3 +4,6 @@
 
 # NODE
 node_modules
+
+# DEV
+.asphalt*
