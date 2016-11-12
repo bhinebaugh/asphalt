@@ -1,6 +1,7 @@
 # EDITORS
 *~
 *.swp
+.idea
 
 # NODE
 node_modules
