@@ -2,29 +2,15 @@
 const fs = require('fs');
 const path = require('path');
 const proc = require('process');
-const Readable = require('stream').Readable;
-const Transform = require('stream').Transform;
-const Writable = require('stream').Writable;
 const readline = require('readline');
+const {
+  Readable,
+  Transform,
+  Writable
+} = require('stream');
 
 // Third party libraries
 const Promise = require('promise');
-
-// Asphalt modules
-const {getSavedElements} = require('./utils');
-
-function populateElementStore(config) {
-  const store = {};
-
-  const promises = Object.keys(config.schema).map(name => {
-    const filepath = path.resolve(config.basePath, `${name}.json`);
-    return getSavedElements(filepath, config.schema[name]).then(elements => {
-      store[name] = elements;
-    });
-  });
-
-  return Promise.all(promises).then(() => store).catch(err => proc.stderr.write(err));
-}
 
 // Convert schema into a stream of [name, type] pairs
 function createSchemaDefinitionStream(schema) {
@@ -85,7 +71,7 @@ function saveElement(config, name, branch) {
     }
   }).on('finish', () => {
     const modifiedBranch = branch.concat(latest);
-    fs.writeFile(filepath, JSON.stringify(modifiedBranch), err => {
+    fs.writeFile(filepath, JSON.stringify(modifiedBranch) + '\n', err => {
       if (err) {
         proc.stderr.write(`An error occurred saving your ${name} change: ${err}`);
       }
@@ -94,7 +80,6 @@ function saveElement(config, name, branch) {
 }
 
 module.exports = {
-  populateElementStore,
   createSchemaDefinitionStream,
   createSchemaPromptStream,
   createElementConsumer,
