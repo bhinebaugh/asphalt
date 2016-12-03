@@ -12,9 +12,20 @@ const {
 // Third party libraries
 const Promise = require('promise');
 
+// Asphalt libraries
+const {ARRAY_TYPE_REGEX, TYPES} = require('./constants');
+const {
+  assignPropType,
+  generateId,
+  serializePropType
+} = require('./utils');
+
 // Convert schema into a stream of [name, type] pairs
 function createSchemaDefinitionStream(schema) {
   const schemaPairs = Object.keys(schema).map(name => ({name, type: schema[name]}));
+  if (!schemaPairs.some(pair => 'id' === pair.name)) {
+    schemaPairs.unshift({name: 'id', type: 'ID'});
+  }
   return new Readable({
     objectMode: true,
     read() {
@@ -25,21 +36,38 @@ function createSchemaDefinitionStream(schema) {
 
 // Consume schema stream and prompt user for input
 function createSchemaPromptStream() {
+  function ask(push, next, chunk, accumulator) {
+    const {name, type} = chunk;
+    const rl = readline.createInterface({
+      input: proc.stdin,
+      output: proc.stdout
+    });
+
+    rl.question(`${name} (${type}): `, value => {
+      rl.close();
+      const typed = assignPropType(type, value.trim());
+      const forward = accumulator ? [].concat(accumulator, typed) : typed;
+      if (ARRAY_TYPE_REGEX.test(type) && typed.length) {
+        ask(push, next, chunk, forward);
+      } else {
+        const result = Object.assign({}, chunk, {value: forward});
+        push(result);
+        next();
+      }
+    });
+  }
+
   return new Transform({
     objectMode: true,
     transform(chunk, enc, next) {
       const {name, type} = chunk;
-      const rl = readline.createInterface({
-        input: proc.stdin,
-        output: proc.stdout
-      });
-
-      rl.question(`${name} (${type}): `, value => {
-        rl.close();
-        const result = Object.assign({}, chunk, {value});
+      if ('ID' === type) {
+        const result = Object.assign({}, chunk, {value: generateId()});
         this.push(result);
         next();
-      });
+      } else {
+        ask(this.push.bind(this), next, chunk);
+      }
     }
   });
 }
@@ -51,7 +79,7 @@ function createElementConsumer() {
     objectMode: true,
     transform(chunk, enc, next) {
       const {name, type, value} = chunk;
-      result[name] = value;
+      result[name] = serializePropType(type, value);
       this.push(result);
       next();
     }
@@ -71,7 +99,7 @@ function saveElement(config, name, branch) {
     }
   }).on('finish', () => {
     const modifiedBranch = branch.concat(latest);
-    fs.writeFile(filepath, JSON.stringify(modifiedBranch) + '\n', err => {
+    fs.writeFile(filepath, JSON.stringify(modifiedBranch, null, config.indent) + '\n', err => {
       if (err) {
         proc.stderr.write(`An error occurred saving your ${name} change: ${err}`);
       }

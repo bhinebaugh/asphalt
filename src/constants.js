@@ -1,11 +1,24 @@
+const ARRAY_TYPE_REGEX = /^\[(\w+)\]$/;
 const TYPES = {
-  Date: () => new Date(0),
-  Number: () => 0,
-  String: () => '',
+  Date: {
+    deserialize: val => {
+      const date = new Date(val);
+      return isNaN(date.getTime()) ? '' : date;
+    },
+    serialize: date => date.toIsoString ? date.toISOString() : ''
+  },
+  Number: {
+    deserialize: val => Number(val)
+  },
+  Semver: {
+    validate: str => /\d+\.\d+\.\d+/.test(str)
+  },
+  String: {}
 };
 
 const DEFAULT_CONFIG = {
   basePath: '.asphalt',
+  indent: 2,
   schema: {
     feature: {
       title: 'String',
@@ -19,10 +32,11 @@ const DEFAULT_CONFIG = {
       title: 'String',
       description: 'String',
     },
-  },
+  }
 };
 
 module.exports = {
+  ARRAY_TYPE_REGEX,
   TYPES,
   DEFAULT_CONFIG,
 };
