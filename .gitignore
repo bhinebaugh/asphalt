@@ -5,6 +5,7 @@
 
 # NODE
 node_modules
+npm-debug.log
 
 # DEV
 .asphalt*

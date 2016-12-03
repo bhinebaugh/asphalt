@@ -1,11 +1,6 @@
 // Core libraries
 const proc = require('process');
 
-// Third party libraries
-const Promise = require('promise');
-
-// Asphalt modules
-const CONSTANTS = require('./constants');
 const {
   genericErrorHandler,
   initialize
@@ -15,19 +10,20 @@ const {
   createSchemaPromptStream,
   createElementConsumer,
   saveElement
-} = require('./create');
+} = require('./commands/create');
+const {
+  createShowStream
+} = require('./commands/show');
 const {
   createStatusStream,
-  createItemFormatter,
-  writeOut
-} = require('./status');
+  createItemFormatter
+} = require('./commands/status');
 
 proc.stdout.write('Starting Asphalt...\n');
-
-console.log(proc.argv);
+proc.stdout.write(`${proc.argv.join('\n')}\n\n`);
 
 const commands = {
-  create: function (schema) {
+  create(schema) {
     initialize().then(init => {
       const {config, store} = init;
       createSchemaDefinitionStream(config.schema[schema])
@@ -36,12 +32,21 @@ const commands = {
         .pipe(saveElement(config, schema, store[schema]));
     }).catch(genericErrorHandler);
   },
-  help: function () {
+  help() {
     proc.stdout.write('TODO: Add usage example');
   },
-  status: function (schema) {
+  show(schema, args) {
+    const [id] = args;
     initialize().then(init => {
-      const {config, store} = init;
+      const {store} = init;
+      createShowStream(store[schema], id)
+        .pipe(createItemFormatter())
+        .pipe(proc.stdout);
+    }).catch(genericErrorHandler);
+  },
+  status(schema) {
+    initialize().then(init => {
+      const {store} = init;
       createStatusStream(store[schema])
         .pipe(createItemFormatter())
         .pipe(proc.stdout);
@@ -49,7 +54,10 @@ const commands = {
   }
 };
 
-const [execPath, scriptPath, command, schema, ...args] = proc.argv;
+const [command, schema, ...args] = proc.argv.slice(2);
 
-commands[command] ? commands[command](schema, args) : commands.help();
-
+if (commands[command]) {
+  commands[command](schema, args);
+} else {
+  commands.help();
+}

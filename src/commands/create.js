@@ -9,16 +9,13 @@ const {
   Writable
 } = require('stream');
 
-// Third party libraries
-const Promise = require('promise');
-
 // Asphalt libraries
-const {ARRAY_TYPE_REGEX, TYPES} = require('./constants');
+const {ARRAY_TYPE_REGEX} = require('../constants');
 const {
   assignPropType,
   generateId,
   serializePropType
-} = require('./utils');
+} = require('../utils');
 
 // Convert schema into a stream of [name, type] pairs
 function createSchemaDefinitionStream(schema) {
@@ -60,7 +57,7 @@ function createSchemaPromptStream() {
   return new Transform({
     objectMode: true,
     transform(chunk, enc, next) {
-      const {name, type} = chunk;
+      const {type} = chunk;
       if ('ID' === type) {
         const result = Object.assign({}, chunk, {value: generateId()});
         this.push(result);
@@ -99,7 +96,8 @@ function saveElement(config, name, branch) {
     }
   }).on('finish', () => {
     const modifiedBranch = branch.concat(latest);
-    fs.writeFile(filepath, JSON.stringify(modifiedBranch, null, config.indent) + '\n', err => {
+    const stringifiedBranch = JSON.stringify(modifiedBranch, null, config.indent);
+    fs.writeFile(filepath, `${stringifiedBranch}\n`, err => {
       if (err) {
         proc.stderr.write(`An error occurred saving your ${name} change: ${err}`);
       }

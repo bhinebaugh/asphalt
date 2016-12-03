@@ -8,7 +8,7 @@ const {
   ARRAY_TYPE_REGEX,
   DEFAULT_CONFIG,
   TYPES
-} = require('./constants'); 
+} = require('./constants');
 
 function generateId() {
   return Math.random().toString(36).replace(/[\.\d]+/g, '').substring(0, 5);
@@ -63,14 +63,15 @@ function assignPropType(type, value) {
   if (isArrayType) {
     return [].concat(value).map(val => deserialize(val.trim())).filter(val => val);
   }
- 
+
   return deserialize(value);
 }
 
 function assignElementPropTypes(schema, element) {
   return Object.keys(element).reduce((accumulator, prop) => {
-    accumulator[prop] = assignPropType(schema[prop], element[prop]);
-    return accumulator;
+    const next = {};
+    next[prop] = assignPropType(schema[prop], element[prop]);
+    return Object.assign({}, accumulator, next);
   }, {});
 }
 
@@ -103,15 +104,14 @@ function populateElementStore(config) {
 }
 
 function initialize() {
-  let config, store;
+  let config;
+  let store;
   return getAsphaltConfig()
     .then(makeAsphaltDirectory)
-    .then(result => config = result)
+    .then(result => (config = result))
     .then(populateElementStore)
-    .then(result => store = result)
-    .then(result => {
-      return {config, store}
-    });
+    .then(result => (store = result))
+    .then(result => ({config, store}));
 }
 
 module.exports = {

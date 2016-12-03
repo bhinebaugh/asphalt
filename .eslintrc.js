@@ -10,6 +10,9 @@ module.exports = {
     'arrow-body-style': ['error', 'as-needed'],
     'arrow-parens': ['error', 'as-needed'],
     'comma-dangle': ['error', 'never'],
-    'object-curly-spacing': ['error', 'never']
+    'no-unused-vars': 'off',
+    'no-useless-escape': 'off',
+    'object-curly-spacing': ['error', 'never'],
+    'yoda': 'off'
   }
 };

@@ -5,7 +5,7 @@ const TYPES = {
       const date = new Date(val);
       return isNaN(date.getTime()) ? '' : date;
     },
-    serialize: date => date.toIsoString ? date.toISOString() : ''
+    serialize: date => (date.toIsoString ? date.toISOString() : '')
   },
   Number: {
     deserialize: val => Number(val)
@@ -25,18 +25,18 @@ const DEFAULT_CONFIG = {
       description: 'String',
       acceptance: '[String]',
       started: 'Date',
-      completed: 'Date',
+      completed: 'Date'
     },
     milestone: {
       version: 'Semver',
       title: 'String',
-      description: 'String',
-    },
+      description: 'String'
+    }
   }
 };
 
 module.exports = {
   ARRAY_TYPE_REGEX,
   TYPES,
-  DEFAULT_CONFIG,
+  DEFAULT_CONFIG
 };

@@ -10,13 +10,16 @@
   "author": "Jason Hinebaugh",
   "license": "MIT",
   "dependencies": {
-    "promise": "^7.1.1"
+    "promise": "7.1.1"
   },
   "devDependencies": {
-    "eslint": "^3.5.0",
-    "eslint-config-airbnb": "^11.1.0",
-    "eslint-plugin-import": "^1.15.0",
-    "eslint-plugin-jsx-a11y": "^2.2.2",
-    "eslint-plugin-react": "^6.3.0"
+    "eslint": "3.11.1",
+    "eslint-config-airbnb": "13.0.0",
+    "eslint-plugin-import": "2.2.0",
+    "eslint-plugin-jsx-a11y": "2.2.3",
+    "eslint-plugin-react": "6.7.1"
+  },
+  "scripts": {
+    "lint": "eslint src"
   }
 }
