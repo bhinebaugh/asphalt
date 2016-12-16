@@ -14,6 +14,8 @@ const {ARRAY_TYPE_REGEX} = require('../constants');
 const {
   assignPropType,
   generateId,
+  genericErrorHandler,
+  initialize,
   serializePropType
 } = require('../utils');
 
@@ -105,9 +107,12 @@ function saveElement(config, name, branch) {
   });
 }
 
-module.exports = {
-  createSchemaDefinitionStream,
-  createSchemaPromptStream,
-  createElementConsumer,
-  saveElement
+module.exports = function create(schema, args) {
+  initialize().then(init => {
+    const {config, store} = init;
+    createSchemaDefinitionStream(config.schema[schema])
+      .pipe(createSchemaPromptStream())
+      .pipe(createElementConsumer())
+      .pipe(saveElement(config, schema, store[schema]));
+  }).catch(genericErrorHandler);
 };

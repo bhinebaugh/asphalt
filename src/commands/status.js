@@ -1,8 +1,16 @@
 // Core libraries
+const proc = require('process');
 const {
   Readable,
   Transform
 } = require('stream');
+
+// Asphalt libraries
+const {
+  genericErrorHandler,
+  initialize
+} = require('../utils');
+const {itemListingFormatter} = require('../formatters');
 
 function createStatusStream(items) {
   return new Readable({
@@ -13,22 +21,15 @@ function createStatusStream(items) {
   });
 }
 
-function createItemFormatter() {
-  return new Transform({
-    readableObjectMode: false,
-    writableObjectMode: true,
-    transform(chunk, enc, next) {
-      if (chunk) {
-        Object.keys(chunk).forEach(element => {
-          this.push(`${element}: ${chunk[element]}\n`);
-        });
-      }
-      next();
-    }
-  });
-}
-
 module.exports = {
-  createStatusStream,
-  createItemFormatter
+  createStatusStream
+};
+
+module.exports = function status(schema) {
+  initialize().then(init => {
+    const {store} = init;
+    createStatusStream(store[schema])
+      .pipe(itemListingFormatter())
+      .pipe(proc.stdout);
+  }).catch(genericErrorHandler);
 };

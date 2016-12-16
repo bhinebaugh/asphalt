@@ -103,7 +103,7 @@ function populateElementStore(config) {
   return Promise.all(promises).then(() => store).catch(err => proc.stderr.write(err));
 }
 
-function initialize() {
+function initialize(schema) {
   let config;
   let store;
   return getAsphaltConfig()
@@ -111,7 +111,7 @@ function initialize() {
     .then(result => (config = result))
     .then(populateElementStore)
     .then(result => (store = result))
-    .then(result => ({config, store}));
+    .then(result => ({config, schema, store}));
 }
 
 module.exports = {
