@@ -32,6 +32,9 @@ const DEFAULT_CONFIG = {
       title: 'String',
       description: 'String'
     }
+  },
+  format: {
+    feature: ['title', 'started', 'completed']
   }
 };
 

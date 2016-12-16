@@ -10,7 +10,7 @@ const {
   genericErrorHandler,
   initialize
 } = require('../utils');
-const {itemListingFormatter} = require('../formatters');
+const {itemSummaryFormatter} = require('../formatters');
 
 function createStatusStream(items) {
   return new Readable({
@@ -21,15 +21,12 @@ function createStatusStream(items) {
   });
 }
 
-module.exports = {
-  createStatusStream
-};
-
-module.exports = function status(schema) {
+module.exports = function status(schema, args) {
   initialize().then(init => {
-    const {store} = init;
+    const {config, store} = init;
+    const format = (config.format[schema] || {}).status || config.format[schema];
     createStatusStream(store[schema])
-      .pipe(itemListingFormatter())
+      .pipe(itemSummaryFormatter(format))
       .pipe(proc.stdout);
   }).catch(genericErrorHandler);
 };

@@ -11,7 +11,6 @@ const show = require('./commands/show');
 const status = require('./commands/status');
 
 proc.stdout.write('Starting Asphalt...\n');
-proc.stdout.write(`${proc.argv.join('\n')}\n\n`);
 
 const commands = {
   create,
