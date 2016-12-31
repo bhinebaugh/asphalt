@@ -2,10 +2,8 @@ const proc = require('process');
 const {Readable} = require('stream');
 
 // Asphalt libraries
-const {
-  genericErrorHandler,
-  initialize
-} = require('../utils');
+const initialize = require('../init');
+const {genericErrorHandler} = require('../utils');
 const {itemDetailFormatter} = require('../formatters');
 
 function createShowStream(items, match) {

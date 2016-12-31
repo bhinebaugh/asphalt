@@ -6,10 +6,8 @@ const {
 } = require('stream');
 
 // Asphalt libraries
-const {
-  genericErrorHandler,
-  initialize
-} = require('../utils');
+const initialize = require('../init');
+const {genericErrorHandler} = require('../utils');
 const {itemSummaryFormatter} = require('../formatters');
 
 function createStatusStream(items) {

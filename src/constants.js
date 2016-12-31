@@ -1,4 +1,5 @@
 const ARRAY_TYPE_REGEX = /^\[(\w+)\]$/;
+
 const TYPES = {
   Date: {
     deserialize: val => {

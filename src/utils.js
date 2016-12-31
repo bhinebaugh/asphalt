@@ -15,21 +15,32 @@ function generateId() {
 }
 
 function genericErrorHandler(err) {
-  proc.stderr.write(JSON.stringify(err));
+  proc.stderr.write(`
+Asphalt has encountered an error. The latest command may not have completed successfully
+${err}
+`);
+  Object.keys(err).forEach(key => proc.stderr.write(`${key}: ${err[key]}\n`));
   proc.exit(1);
 }
 
 function getAsphaltConfig() {
   return new Promise((resolve, reject) => {
     fs.readFile('.asphalt.json', (err, data) => {
-      if (err) {
-        if (err.code === 'ENOENT') {
+      if (!err) {
+        try {
+          resolve(JSON.parse(data));
+          proc.stdout.write('Using configuration found in .asphalt.json');
+        } catch (e) {
+          proc.stderr.write('Unable to parse .asphalt.json\n');
+          proc.stderr.write(`${String(e)}\n`);
+          proc.stdout.write('Falling back to default configuration\n');
           resolve(DEFAULT_CONFIG);
-        } else {
-          reject(err);
         }
+      } else if (err.code === 'ENOENT') {
+        proc.stdout.write('Using default configuration (Specify local configuration in .asphalt.json)\n');
+        resolve(DEFAULT_CONFIG);
       } else {
-        resolve(JSON.parse(data));
+        reject(err);
       }
     });
   });
@@ -38,7 +49,11 @@ function getAsphaltConfig() {
 function makeAsphaltDirectory(config) {
   return new Promise((resolve, reject) => {
     fs.mkdir(config.basePath, err => {
-      resolve(config);
+      if (!err || err.code === 'EEXIST') {
+        resolve(config);
+      } else {
+        reject(err);
+      }
     });
   });
 }
@@ -103,17 +118,6 @@ function populateElementStore(config) {
   return Promise.all(promises).then(() => store).catch(err => proc.stderr.write(err));
 }
 
-function initialize(schema) {
-  let config;
-  let store;
-  return getAsphaltConfig()
-    .then(makeAsphaltDirectory)
-    .then(result => (config = result))
-    .then(populateElementStore)
-    .then(result => (store = result))
-    .then(result => ({config, schema, store}));
-}
-
 module.exports = {
   assignElementPropTypes,
   assignPropType,
@@ -121,7 +125,6 @@ module.exports = {
   genericErrorHandler,
   getAsphaltConfig,
   getSavedElements,
-  initialize,
   makeAsphaltDirectory,
   populateElementStore,
   serializePropType

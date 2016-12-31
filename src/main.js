@@ -1,10 +1,6 @@
 // Core libraries
 const proc = require('process');
 
-const {
-  genericErrorHandler,
-  initialize
-} = require('./utils');
 const create = require('./commands/create');
 const help = require('./commands/help');
 const show = require('./commands/show');

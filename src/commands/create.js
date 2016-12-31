@@ -11,11 +11,11 @@ const {
 
 // Asphalt libraries
 const {ARRAY_TYPE_REGEX} = require('../constants');
+const initialize = require('../init');
 const {
   assignPropType,
   generateId,
   genericErrorHandler,
-  initialize,
   serializePropType
 } = require('../utils');
 
