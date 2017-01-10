@@ -15,12 +15,12 @@ function generateId() {
 }
 
 function genericErrorHandler(err) {
-  proc.stderr.write(`
-Asphalt has encountered an error. The latest command may not have completed successfully
-${err}
+  const message = Object.keys(err).reduce((acc, key) => `${acc}${key}: ${err[key]}\n`, '');
+  proc.stdout.write(`
+Asphalt has encountered an error.
+The latest command may not have completed successfully.
 `);
-  Object.keys(err).forEach(key => proc.stderr.write(`${key}: ${err[key]}\n`));
-  proc.exit(1);
+  throw new Error(message);
 }
 
 function getAsphaltConfig() {
