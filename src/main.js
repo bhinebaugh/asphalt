@@ -1,5 +1,5 @@
 // Core libraries
-const proc = require('process');
+const proc = require('./proc');
 
 const create = require('./commands/create');
 const help = require('./commands/help');

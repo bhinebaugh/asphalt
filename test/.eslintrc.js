@@ -9,5 +9,9 @@ module.exports = {
     'it': false,
     'jasmine': false,
     'spyOn': false
+  },
+  rules: {
+    'global-require': 'off',
+    'import/no-extraneous-dependencies': ['error', {devDependencies: true}]
   }
 };

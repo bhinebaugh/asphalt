@@ -1,5 +1,6 @@
-const proc = require('process');
 const {Readable} = require('stream');
+
+const proc = require('../proc');
 
 // Asphalt libraries
 const initialize = require('../init');

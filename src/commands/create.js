@@ -1,13 +1,14 @@
 // Core libraries
 const fs = require('fs');
 const path = require('path');
-const proc = require('process');
 const readline = require('readline');
 const {
   Readable,
   Transform,
   Writable
 } = require('stream');
+
+const proc = require('../proc');
 
 // Asphalt libraries
 const {ARRAY_TYPE_REGEX} = require('../constants');

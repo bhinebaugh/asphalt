@@ -1,9 +1,10 @@
 // Core libraries
-const proc = require('process');
 const {
   Readable,
   Transform
 } = require('stream');
+
+const proc = require('../proc');
 
 // Asphalt libraries
 const initialize = require('../init');

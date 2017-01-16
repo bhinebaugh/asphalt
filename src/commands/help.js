@@ -1,4 +1,5 @@
-const proc = require('process');
+const proc = require('../proc');
+
 const initialize = require('../init');
 const {genericErrorHandler} = require('../utils');
 

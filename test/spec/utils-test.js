@@ -1,7 +1,15 @@
+const mock = require('mock-require');
 const {defaultSchema} = require('../helpers/schema-fixtures');
-const utils = require('../../src/utils');
+const processMock = require('../helpers/process-mock');
+
+let utils;
 
 describe('Utilities', () => {
+  beforeAll(() => {
+    mock('process', processMock);
+    utils = require('../../src/utils');
+  });
+
   describe('assignElementPropTypes()', () => {
     beforeEach(() => {
       spyOn(utils, 'assignPropType');
@@ -29,5 +37,9 @@ describe('Utilities', () => {
       }
       expect(triggerErrorHandler).toThrowError(/key: val/);
     });
+  });
+
+  afterAll(() => {
+    mock.stop('process');
   });
 });

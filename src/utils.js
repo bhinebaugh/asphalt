@@ -1,7 +1,8 @@
 // Core libraries
 const fs = require('fs');
 const path = require('path');
-const proc = require('process');
+
+const proc = require('./proc');
 
 // Asphalt modules
 const {
