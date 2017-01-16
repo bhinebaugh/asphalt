@@ -17,9 +17,11 @@
     "eslint-plugin-react": "6.7.1",
     "jasmine": "2.5.2",
     "jasmine-spec-reporter": "3.1.0",
-    "mock-require": "2.0.1"
+    "mock-require": "2.0.1",
+    "nyc": "10.1.2"
   },
   "scripts": {
+    "coverage": "nyc --reporter=lcov --reporter=html --reporter=text npm test",
     "lint": "eslint src",
     "start": "node src/main.js",
     "test": "JASMINE_CONFIG_PATH=jasmine.json jasmine"

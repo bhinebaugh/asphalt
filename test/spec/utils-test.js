@@ -6,7 +6,7 @@ let utils;
 
 describe('Utilities', () => {
   beforeAll(() => {
-    mock('process', processMock);
+    mock('../../src/proc', processMock);
     utils = require('../../src/utils');
   });
 

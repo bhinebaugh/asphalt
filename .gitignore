@@ -9,3 +9,7 @@ npm-debug.log
 
 # DEV
 .asphalt*
+
+# TEST OUTPUT
+.nyc_output
+coverage
