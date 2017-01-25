@@ -5,7 +5,7 @@ const types = {
   Date: {
     deserialize: val => {
       const date = new Date(val);
-      return isNaN(date.getTime()) ? '' : date;
+      return isNaN(date.getTime()) ? null : date;
     },
     serialize: date => (date.toIsoString ? date.toISOString() : '')
   },

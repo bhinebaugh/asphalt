@@ -24,21 +24,22 @@ The latest command may not have completed successfully.
   throw new Error(message);
 }
 
-function getAsphaltConfig() {
+function getAsphaltConfig(configPath = '.asphalt.json') {
   return new Promise((resolve, reject) => {
-    fs.readFile('.asphalt.json', (err, data) => {
+    fs.readFile(configPath, (err, data) => {
       if (!err) {
         try {
-          resolve(JSON.parse(data));
-          proc.stdout.write('Using configuration found in .asphalt.json');
+          const parsed = JSON.parse(data);
+          proc.stdout.write(`Using configuration found in ${configPath}\n`);
+          resolve(parsed);
         } catch (e) {
-          proc.stderr.write('Unable to parse .asphalt.json\n');
+          proc.stderr.write(`Unable to parse ${configPath}\n`);
           proc.stderr.write(`${String(e)}\n`);
           proc.stdout.write('Falling back to default configuration\n');
           resolve(DEFAULT_CONFIG);
         }
       } else if (err.code === 'ENOENT') {
-        proc.stdout.write('Using default configuration (Specify local configuration in .asphalt.json)\n');
+        proc.stdout.write(`Using default configuration (Specify local configuration in ${configPath})\n`);
         resolve(DEFAULT_CONFIG);
       } else {
         reject(err);
@@ -77,7 +78,10 @@ function assignPropType(type, value) {
   const deserialize = (propType && propType.deserialize) || (val => val);
 
   if (isArrayType) {
-    return [].concat(value).map(val => deserialize(val.trim())).filter(val => val);
+    return [].concat(value)
+      .map(val => (val.trim ? val.trim() : val))
+      .map(val => deserialize(val))
+      .filter(val => val);
   }
 
   return deserialize(value);
