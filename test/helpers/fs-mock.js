@@ -1,4 +1,22 @@
-const payloads = {
+const errors = {
+  '.other.error': () => ({
+    err: {code: 'OTHERERROR'}
+  }),
+  '.actual.error': () => {
+    throw new Error('Totally Legit Error');
+  }
+};
+
+const directoriesToMake = Object.assign({}, errors, {
+  '.asphalt': () => ({
+    err: undefined
+  }),
+  '.asphalt.duplicate': () => ({
+    err: 'EEXIST'
+  })
+});
+
+const filesToRead = Object.assign({}, errors, {
   '.asphalt.json': () => ({
     data: '{"foo": "bar"}'
   }),
@@ -7,20 +25,20 @@ const payloads = {
   }),
   '.not.valid.json': () => ({
     data: 'foo = bar(baz);'
-  }),
-  '.other.error': () => ({
-    err: {code: 'SUCHERROR'}
-  }),
-  '.actual.error': () => {
-    throw new Error('SUCHERROR');
-  }
-};
+  })
+});
+
+function mkdir(path, callback) {
+  const {err} = directoriesToMake[path]();
+  callback(err);
+}
 
 function readFile(path, callback) {
-  const {err, data} = payloads[path]();
+  const {err, data} = filesToRead[path]();
   callback(err, data);
 }
 
 module.exports = {
+  mkdir,
   readFile
 };

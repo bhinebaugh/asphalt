@@ -79,18 +79,21 @@ describe('Utilities', () => {
     it('returns a promise with the parsed configuration', () => {
       const promise = utils.getAsphaltConfig();
       expect(promise instanceof Promise).toBe(true);
+      return promise.then(config => {
+        expect(config.foo).toBe('bar');
+      });
     });
     describe('falls back to default configuration', () => {
-      it('when a parse error occurs', () => {
-        const promise = utils.getAsphaltConfig('.not.valid.json').then(data => {
+      it('when a parse error occurs', () =>
+        utils.getAsphaltConfig('.not.valid.json').then(data => {
           expect(data).toEqual(DEFAULT_CONFIG);
-        });
-      });
-      it('when no configuration file is present', () => {
-        const promise = utils.getAsphaltConfig('.not.a.file').then(data => {
+        })
+      );
+      it('when no configuration file is present', () =>
+        utils.getAsphaltConfig('.not.a.file').then(data => {
           expect(data).toEqual(DEFAULT_CONFIG);
-        });
-      });
+        })
+      );
     });
     it('rejects the promise on error while loading the configuration', () => {
       const failSpy = jasmine.createSpy('failSpy');
@@ -100,19 +103,60 @@ describe('Utilities', () => {
     });
   });
 
+  describe('getSavedElements', () => {});
+
   describe('makeAsphaltDirectory', () => {
-    it('returns a promise that resolves with the given configuration');
-    it('resolves correctly even if the directory already exists');
-    it('rejects the promise if any other error occurs');
+    it('returns a promise that resolves with the given configuration', () => {
+      const config = {basePath: '.asphalt'};
+      const promise = utils.makeAsphaltDirectory(config);
+      expect(promise instanceof Promise).toBe(true);
+      return promise.then(conf => {
+        expect(conf.basePath).toBe('.asphalt');
+      });
+    });
+    it('resolves correctly even if the directory already exists', () => {
+      const config = {basePath: '.asphalt.duplicate'};
+      return utils.makeAsphaltDirectory(config).then(conf => {
+        expect(conf).toBe(config);
+      });
+    });
+    it('rejects the promise if any other error occurs', () => {
+      const failSpy = jasmine.createSpy('failSpy');
+      const config = {basePath: '.other.error'};
+      return utils.makeAsphaltDirectory(config).catch(failSpy).then(() => {
+        expect(failSpy).toHaveBeenCalled();
+      });
+    });
   });
 
+  describe('populateElementStore', () => {});
+
   describe('serializePropType', () => {
-    it('serializes a string');
-    it('serializes a number');
-    it('serializes a date');
-    it('serializes an array of strings');
-    it('serializes an array of numbers');
-    it('serializes an array of dates');
+    it('serializes a string', () => {
+      const serial = utils.serializePropType('String', 'Marty');
+      expect(serial).toBe('Marty');
+    });
+    it('serializes a number', () => {
+      const serial = utils.serializePropType('Number', 13);
+      expect(serial).toBe(13);
+    });
+    it('serializes a date', () => {
+      const serial = utils.serializePropType('Date', new Date(0));
+      expect(serial).toMatch(/1970-01-01/);
+    });
+    it('serializes an array of strings', () => {
+      const serial = utils.serializePropType('[String]', ['Ron', 'Harry', 'Hermione']);
+      expect(serial).toEqual(['Ron', 'Harry', 'Hermione']);
+    });
+    it('serializes an array of numbers', () => {
+      const serial = utils.serializePropType('[Number]', [1, 2, 3]);
+      expect(serial).toEqual([1, 2, 3]);
+    });
+    it('serializes an array of dates', () => {
+      const serial = utils.serializePropType('[Date]', [new Date(0), new Date(24 * 60 * 60 * 1000)]);
+      expect(serial[0]).toMatch(/1970-01-01/);
+      expect(serial[1]).toMatch(/1970-01-02/);
+    });
   });
 
   afterAll(() => {
