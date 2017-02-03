@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // Core libraries
 const proc = require('./proc');
 

@@ -1,8 +1,11 @@
 const errors = {
-  '.other.error': () => ({
+  'error.json': () => ({
     err: {code: 'OTHERERROR'}
   }),
-  '.actual.error': () => {
+  'other.error': () => ({
+    err: {code: 'OTHERERROR'}
+  }),
+  'actual.error': () => {
     throw new Error('Totally Legit Error');
   }
 };
@@ -12,7 +15,7 @@ const directoriesToMake = Object.assign({}, errors, {
     err: undefined
   }),
   '.asphalt.duplicate': () => ({
-    err: 'EEXIST'
+    err: {code: 'EEXIST'}
   })
 });
 
@@ -20,10 +23,22 @@ const filesToRead = Object.assign({}, errors, {
   '.asphalt.json': () => ({
     data: '{"foo": "bar"}'
   }),
-  '.not.a.file': () => ({
+  'feature.json': () => ({
+    data: `[
+      {"id": "alpha"},
+      {"id": "bravo"}
+    ]`
+  }),
+  'milestone.json': () => ({
+    data: `[
+      {"version": "0.1.0"},
+      {"version": "0.1.1"}
+    ]`
+  }),
+  'not.a.file': () => ({
     err: {code: 'ENOENT'}
   }),
-  '.not.valid.json': () => ({
+  'not.valid.json': () => ({
     data: 'foo = bar(baz);'
   })
 });

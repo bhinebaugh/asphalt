@@ -7,9 +7,7 @@ function formatterFactory(format) {
       readableObjectMode: false,
       writableObjectMode: true,
       transform(chunk, enc, next) {
-        if (chunk) {
-          format(props, chunk, line => this.push(`${line}\n`));
-        }
+        format(props, chunk, line => this.push(`${line}\n`));
         next();
       }
     });

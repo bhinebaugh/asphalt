@@ -120,7 +120,7 @@ function populateElementStore(config) {
       store[name] = elements;
     });
   });
-  return Promise.all(promises).then(() => store).catch(err => proc.stderr.write(err));
+  return Promise.all(promises).catch(err => proc.stderr.write(err)).then(() => store);
 }
 
 module.exports = {
