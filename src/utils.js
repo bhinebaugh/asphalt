@@ -7,9 +7,9 @@ const proc = require('./proc');
 // Asphalt modules
 const {
   ARRAY_TYPE_REGEX,
-  DEFAULT_CONFIG,
-  TYPES
+  DEFAULT_CONFIG
 } = require('./constants');
+const types = require('./types');
 
 function generateId() {
   return Math.random().toString(36).replace(/[\.\d]+/g, '').substring(0, 5);
@@ -62,8 +62,8 @@ function makeAsphaltDirectory(config) {
 
 function serializePropType(type, value) {
   const isArrayType = ARRAY_TYPE_REGEX.test(type);
-  const propType = isArrayType ? TYPES[type.match(ARRAY_TYPE_REGEX)[1]] : TYPES[type];
-  const serialize = (propType && propType.serialize) || (val => val);
+  const propType = isArrayType ? types[type.match(ARRAY_TYPE_REGEX)[1]] : types[type];
+  const serialize = (propType && propType.serialize);
 
   if (isArrayType) {
     return value.map(val => serialize(val));
@@ -74,8 +74,8 @@ function serializePropType(type, value) {
 
 function assignPropType(type, value) {
   const isArrayType = ARRAY_TYPE_REGEX.test(type);
-  const propType = isArrayType ? TYPES[type.match(ARRAY_TYPE_REGEX)[1]] : TYPES[type];
-  const deserialize = (propType && propType.deserialize) || (val => val);
+  const propType = isArrayType ? types[type.match(ARRAY_TYPE_REGEX)[1]] : types[type];
+  const deserialize = (propType && propType.deserialize);
 
   if (isArrayType) {
     return [].concat(value)
