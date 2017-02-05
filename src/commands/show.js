@@ -7,7 +7,7 @@ const initialize = require('../init');
 const {genericErrorHandler} = require('../utils');
 const {itemDetailFormatter} = require('../formatters');
 
-function createShowStream(items, match) {
+function createShowStream(items = [], match) {
   const filterFn = ('function' === typeof match) ? match : item => item.id === match;
   const filtered = items.filter(filterFn);
   return new Readable({
@@ -21,9 +21,9 @@ function createShowStream(items, match) {
 module.exports = function show(schema, args) {
   const [id] = args;
   initialize().then(init => {
-    const {store} = init;
+    const {config, store} = init;
     createShowStream(store[schema], id)
-      .pipe(itemDetailFormatter())
+      .pipe(itemDetailFormatter(Object.keys(config.schema[schema])))
       .pipe(proc.stdout);
   }).catch(genericErrorHandler);
 };

@@ -1,4 +1,7 @@
 const ARRAY_TYPE_REGEX = /^\[(\w+)\]$/;
+const ID_REGEX = /^[a-z]{5}$/;
+const ISO_8601_REGEX = /^\d{4}-\d{2}-\d{2}/;
+const SEMVER_REGEX = /^(\d+)\.(\d+)\.(\d+)/;
 
 /*
 * The configuration object needs to specify the following things related to saved data:
@@ -33,5 +36,8 @@ const DEFAULT_CONFIG = {
 
 module.exports = {
   ARRAY_TYPE_REGEX,
-  DEFAULT_CONFIG
+  DEFAULT_CONFIG,
+  ID_REGEX,
+  ISO_8601_REGEX,
+  SEMVER_REGEX
 };

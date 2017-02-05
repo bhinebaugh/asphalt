@@ -27,36 +27,15 @@ describe('Utilities', () => {
   });
 
   describe('assignPropType', () => {
-    it('deserializes a string', () => {
+    it('deserializes a value', () => {
       const string = utils.assignPropType('String', 'William');
       expect(string).toBe('William');
     });
-    it('deserializes a number', () => {
-      let number = utils.assignPropType('Number', '5');
-      expect(number).toBe(5);
-
-      number = utils.assignPropType('Number', 5);
-      expect(number).toBe(5);
-    });
-    it('deserializes a date', () => {
-      const date = utils.assignPropType('Date', '2017-01-01');
-      expect(date instanceof Date).toBe(true);
-    });
-    it('deserializes an array of strings', () => {
+    it('deserializes an array of values', () => {
       const strings = utils.assignPropType('[String]', ['William', 'Jefferson']);
       expect(strings).toEqual(['William', 'Jefferson']);
-    });
-    it('deserializes an array of numbers', () => {
-      let numbers = utils.assignPropType('[Number]', ['1', '2']);
+      const numbers = utils.assignPropType('[Number]', [1, 2]);
       expect(numbers).toEqual([1, 2]);
-
-      numbers = utils.assignPropType('[Number]', [1, 2]);
-      expect(numbers).toEqual([1, 2]);
-    });
-    it('deserializes an array of dates', () => {
-      const dates = utils.assignPropType('[Date]', ['2017-01-01', '2017-01-02']);
-      expect(dates instanceof Array).toBe(true);
-      expect(dates[0] instanceof Date).toBe(true);
     });
   });
 
@@ -191,30 +170,15 @@ describe('Utilities', () => {
   });
 
   describe('serializePropType', () => {
-    it('serializes a string', () => {
+    it('serializes a value', () => {
       const serial = utils.serializePropType('String', 'Marty');
       expect(serial).toBe('Marty');
     });
-    it('serializes a number', () => {
-      const serial = utils.serializePropType('Number', 13);
-      expect(serial).toBe(13);
-    });
-    it('serializes a date', () => {
-      const serial = utils.serializePropType('Date', new Date(0));
-      expect(serial).toMatch(/1970-01-01/);
-    });
-    it('serializes an array of strings', () => {
-      const serial = utils.serializePropType('[String]', ['Ron', 'Harry', 'Hermione']);
-      expect(serial).toEqual(['Ron', 'Harry', 'Hermione']);
-    });
-    it('serializes an array of numbers', () => {
-      const serial = utils.serializePropType('[Number]', [1, 2, 3]);
-      expect(serial).toEqual([1, 2, 3]);
-    });
-    it('serializes an array of dates', () => {
-      const serial = utils.serializePropType('[Date]', [new Date(0), new Date(24 * 60 * 60 * 1000)]);
-      expect(serial[0]).toMatch(/1970-01-01/);
-      expect(serial[1]).toMatch(/1970-01-02/);
+    it('serializes an array of values', () => {
+      const serialStrings = utils.serializePropType('[String]', ['Ron', 'Harry', 'Hermione']);
+      expect(serialStrings).toEqual(['Ron', 'Harry', 'Hermione']);
+      const serialNumbers = utils.serializePropType('[Number]', [5, 4, 3]);
+      expect(serialNumbers).toEqual([5, 4, 3]);
     });
   });
 

@@ -90,7 +90,7 @@ function assignPropType(type, value) {
 function assignElementPropTypes(schema, element) {
   return Object.keys(element).reduce((accumulator, prop) => {
     const next = {};
-    next[prop] = assignPropType(schema[prop], element[prop]);
+    next[prop] = assignPropType(schema[prop] || 'ID', element[prop]);
     return Object.assign({}, accumulator, next);
   }, {});
 }

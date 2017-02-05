@@ -1,3 +1,4 @@
+const moment = require('moment');
 const types = require('../../src/types');
 
 describe('Types', () => {
@@ -6,45 +7,48 @@ describe('Types', () => {
       const {serialize} = types.Boolean;
       expect(serialize(true)).toBe(true);
       expect(serialize(false)).toBe(false);
-      expect(serialize(1)).toBe(true);
-      expect(serialize('John')).toBe(true);
-      expect(serialize(0)).toBe(false);
-      expect(serialize('')).toBe(false);
     });
     it('deserializes to a boolean', () => {
       const {deserialize} = types.Boolean;
       expect(deserialize(true)).toBe(true);
       expect(deserialize(false)).toBe(false);
-      expect(deserialize(1)).toBe(true);
-      expect(deserialize('John')).toBe(true);
-      expect(deserialize(0)).toBe(false);
-      expect(deserialize('')).toBe(false);
     });
     it('validates user input', () => {
       const {validate} = types.Boolean;
       expect(validate(true)).toBe(true);
       expect(validate(false)).toBe(true);
-      expect(validate('true')).toBe(false);
-      expect(validate('false')).toBe(false);
     });
   });
-  describe('Date', () => {});
+  describe('Date', () => {
+    it('serializes to an ISO 8601 date string', () => {
+      const {serialize} = types.Date;
+      const isoRegex = /^\d{4}-\d{2}-\d{2}/;
+      expect(serialize(moment())).toMatch(isoRegex);
+    });
+    it('deserializes to a moment', () => {
+      const {deserialize} = types.Date;
+      expect(deserialize('2017-01-01').isValid()).toBe(true);
+      expect(deserialize('01/01/2017')).toBeUndefined();
+    });
+    it('validates user input', () => {
+      const {validate} = types.Date;
+      expect(validate('2017-01-01')).toBe(true);
+      expect(validate('January 1st')).toBe(false);
+    });
+  });
   describe('Number', () => {
     it('serializes to a number', () => {
       const {serialize} = types.Number;
       expect(serialize(12)).toBe(12);
-      expect(serialize('12')).toBe(12);
     });
     it('deserializes to a number', () => {
       const {deserialize} = types.Number;
       expect(deserialize(12)).toBe(12);
-      expect(deserialize('12')).toBe(12);
     });
     it('validates user input', () => {
       const {validate} = types.Number;
       expect(validate(7)).toBe(true);
-      expect(validate('7')).toBe(true);
-      expect(validate('banana')).toBe(false);
+      expect(validate('7')).toBe(false);
     });
   });
   describe('Semver', () => {
@@ -74,14 +78,10 @@ describe('Types', () => {
     it('serializes to a string', () => {
       const {serialize} = types.String;
       expect(serialize('Turkey')).toBe('Turkey');
-      expect(serialize(100)).toBe('100');
-      expect(serialize(false)).toBe('false');
     });
     it('deserializes to a string', () => {
       const {deserialize} = types.String;
       expect(deserialize('Aardvark')).toBe('Aardvark');
-      expect(deserialize(17)).toBe('17');
-      expect(deserialize(false)).toBe('false');
     });
     it('validates user input', () => {
       const {validate} = types.String;

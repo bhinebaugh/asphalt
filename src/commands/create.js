@@ -45,7 +45,14 @@ function createSchemaPromptStream() {
 
     rl.question(`${name} (${type}): `, value => {
       rl.close();
-      const typed = assignPropType(type, value.trim());
+      const trimmed = value.trim();
+      let parsed;
+      try {
+        parsed = JSON.parse(trimmed);
+      } catch (err) {
+        parsed = trimmed;
+      }
+      const typed = assignPropType(type, parsed);
       const forward = accumulator ? [].concat(accumulator, typed) : typed;
       if (ARRAY_TYPE_REGEX.test(type) && typed.length) {
         ask(push, next, chunk, forward);

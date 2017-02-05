@@ -1,5 +1,7 @@
 function noop() {}
 
+const argv = [];
+
 const stderr = {
   read: noop,
   write: noop
@@ -10,6 +12,7 @@ const stdout = {
 };
 
 module.exports = {
+  argv,
   stderr,
   stdout
 };

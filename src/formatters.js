@@ -16,7 +16,10 @@ function formatterFactory(format) {
 
 function itemDetails(props, item, push) {
   const keys = props || Object.keys(item);
-  keys.forEach(key => push(`${key}: ${item[key]}`));
+  keys.forEach(key => {
+    const val = (undefined === item[key] ? '' : item[key]);
+    push(`${key}: ${val}`);
+  });
 }
 
 function itemSummary(props, item, push) {
